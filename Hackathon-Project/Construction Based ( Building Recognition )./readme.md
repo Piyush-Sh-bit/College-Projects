@@ -2,7 +2,8 @@
 
 ## Overview
 The Construction Progress Monitoring System is a machine learning-based solution designed to automate the tracking of construction activities using site images and a building plan. By uploading a building plan and periodic site images, the system compares actual progress against planned construction stages and generates detailed reports or alerts for any discrepancies.
-Though it is not complete the work is still going on.
+
+**Note**: This project is still under development.
 
 ## Features
 - **Building Plan Upload**: Allows the user to upload a building plan for analysis.
@@ -10,6 +11,9 @@ Though it is not complete the work is still going on.
 - **Feature Extraction**: The system analyzes key structural elements such as walls, floors, and columns from both the building plan and site images.
 - **Progress Monitoring**: Compares site images with the building plan and determines the construction stage.
 - **Alerts and Reports**: Generates progress reports or raises alerts in case of discrepancies between the plan and actual construction.
+
+## Dataset
+The dataset used for this project is available on [Kaggle](https://www.kaggle.com/datasets/piyushsharma5654/construction-dataset/data).
 
 ## System Architecture
 The system is composed of four key blocks:
