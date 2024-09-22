@@ -8,7 +8,7 @@ This repository contains the code and resources for an AI-based recommendation s
 * Goal: To accurately identify the emotional state of a speaker from their speech signal.
 * Approach: Employ deep learning models, such as Convolutional Neural Networks (CNNs) and Recurrent Neural Networks (RNNs), to extract relevant features from the speech data and classify the emotions.
 * Data: A publicly available speech emotion recognition dataset will be used for training and evaluation.
-## Construction Progress Monitoring System
+## Construction Progress Monitoring System ( Hackathon Project )
 * Goal: To monitor the progress of construction activities using images from the site and a building plan, automating the comparison of actual progress with planned stages.
 * Approach: Leverage machine learning techniques to extract structural features from both the uploaded building plan and site images. These features are compared to assess whether construction is proceeding according to plan, identifying any discrepancies in real-time.
 * Data: A dataset containing construction site images and corresponding building plans will be used to train the model. The dataset is available on Kaggle.
