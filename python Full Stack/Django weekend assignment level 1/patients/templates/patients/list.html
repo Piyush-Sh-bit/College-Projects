@@ -1,0 +1,12 @@
+
+<h1>Patient List</h1>
+<a href="{% url 'patients_add' %}">Add New</a>
+<ul>
+    {% for obj in patients %}
+        <li>
+            <a href="{% url 'patients_detail' obj.pk %}">{{ obj }}</a>
+            (<a href="{% url 'patients_edit' obj.pk %}">Edit</a>,
+             <a href="{% url 'patients_delete' obj.pk %}">Delete</a>)
+        </li>
+    {% endfor %}
+</ul>
