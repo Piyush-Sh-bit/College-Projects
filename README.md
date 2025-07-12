@@ -1,68 +1,135 @@
-# 🎓 College-Projects-Labs
+# 📚 College Projects Repository
 
-This repository contains a collection of academic and extracurricular projects related to machine learning, computer vision, speech analysis, and full-stack development. Each folder represents a distinct project carried out as part of coursework, internships, or hackathons.
+Welcome to my curated collection of academic, internship, and hackathon projects developed during my engineering journey. This repository includes work on **machine learning**, **speech processing**, **computer vision**, **NLP**, **web development**, and more.
 
----
-
-## 📁 Repository Structure
-
-```
-College-Projects-Labs/
-├── Detection-of-Covid19-Using-Lung-Ultrasound/
-├── Hackathon-Project/Construction-Based-Building-Recognition/
-├── Internship_Project_IBM-main/
-├── Voice-of-emotions-for-Improved-Speech-Analysis.-main/
-├── python Full Stack/
-└── README.md
-```
+> 🔗 **GitHub:** [github.com/Piyush-Sh-bit/College-Projects](https://github.com/Piyush-Sh-bit/College-Projects)
 
 ---
 
-## 📌 Project Overviews
+## 📑 Table of Contents
 
-### 1. Detection of Covid‑19 Using Lung Ultrasound
-- **Objective**: Classify lung ultrasound videos/images into COVID‑19, pneumonia, or healthy categories.
-- **Method**: Used CNN and Vision Transformer (ViT) models for frame-level and video-level classification. Frames were extracted (~152 per video), resized, and augmented for training.
-- **Results**:
-  - CNN (image-level): ~86.7%
-  - CNN (video-level): ~82.6%
-  - ViT (image-level): ~82.4%
-  - ViT (video-level): ~55.3%
-
-### 2. Construction-Based Building Recognition (Hackathon Project)
-- **Objective**: Detect construction progress and mismatches by comparing site images to building plans.
-- **Approach**: Used image processing and feature-matching to analyze structural differences.
-
-### 3. IBM Internship Project: Movie Recommendation System
-- **Objective**: Develop a collaborative filtering-based movie recommender system.
-- **Details**: User history was used to suggest similar movies using matrix factorization techniques.
-
-### 4. Voice of Emotions for Improved Speech Analysis
-- **Objective**: Classify emotions in speech using deep learning models.
-- **Approach**: Implemented CNNs and RNNs on labeled emotional speech datasets to detect emotional tone in audio clips.
-
-### 5. Python Full Stack
-- **Content**: Contains full-stack web development exercises and mini-projects using Python and JavaScript.
-- **Structure**: Typically includes Python backends and HTML/JavaScript-based frontends for small applications.
+- [📁 Capstone Submissions](#-capstone-submissions)
+  - [🧠 COVID-19 Detection via Lung Ultrasound](#-covid-19-detection-via-lung-ultrasound)
+  - [🎤 Speech Emotion Analysis](#-speech-emotion-analysis)
+  - [📈 Stock Market Prediction using NLP](#-stock-market-prediction-using-nlp)
+- [🏆 Hackathon Project](#-hackathon-project)
+  - [🏗️ Construction-Based Building Recognition](#-construction-based-building-recognition)
+- [💼 Internship Project](#-internship-project)
+  - [🎬 Movie Recommendation System](#-movie-recommendation-system)
+- [🌐 Python Full Stack Projects](#-python-full-stack-projects)
+  - [📦 MedSecureVault – Health Records System](#-medsecurevault--health-records-system)
+- [📄 License](#-license)
 
 ---
 
-## 🧪 Technologies Used
+## 📁 Capstone Submissions
 
-- **Languages**: Python, JavaScript, HTML/CSS
-- **Libraries & Frameworks**: PyTorch, NumPy, Pandas, Matplotlib
-- **Domains**: Computer Vision, Recommender Systems, Speech Processing, Web Development
+### 🧠 COVID-19 Detection via Lung Ultrasound
+
+**Objective:**  
+Classify ultrasound frames into **COVID-19**, **pneumonia**, or **healthy**.
+
+**Approach:**  
+- Extracted ~152 frames/video.
+- Preprocessed and resized.
+- Trained models:
+  - ✅ CNN (Image-level: 86.7%, Video-level: 82.6%)
+  - ✅ Vision Transformer (ViT)
+
+**Tech Stack:**  
+`PyTorch`, `OpenCV`, `Python`, `Deep Learning`
 
 ---
 
-## 📂 Usage
+### 🎤 Speech Emotion Analysis
 
-To explore any project locally:
+**Objective:**  
+Identify emotional states from speech (anger, joy, sadness, etc.)
 
-```bash
-git clone https://github.com/Piyush-Sh-bit/College-Projects-Labs.git
-cd College-Projects-Labs/<project-folder>
-```
+**Approach:**
+- Noise filtering and feature extraction (MFCCs)
+- Model training:
+  - CNN
+  - RNN (LSTM)
 
-Each folder includes source code, scripts, and (where available) Jupyter notebooks and dataset links/instructions.
+**Tech Stack:**  
+`Librosa`, `PyTorch`, `Python`, `Signal Processing`
 
+---
+
+### 📈 Stock Market Prediction using NLP
+
+**Objective:**  
+Predict stock trends using headline sentiment analysis.
+
+**Approach:**
+- Fetched financial headlines
+- Applied sentiment scoring
+- Combined with time-series analysis
+
+**Tech Stack:**  
+`NLP`, `Scikit-learn`, `Pandas`, `Matplotlib`
+
+---
+
+## 🏆 Hackathon Project
+
+### 🏗️ Construction-Based Building Recognition
+
+**Objective:**  
+Monitor construction progress via image comparison with architectural plans.
+
+**Approach:**
+- Feature extraction (e.g., SIFT/SURF)
+- Blueprint vs real-site image matching
+- Progress visualization
+
+**Files Included:**
+- `Construction.ipynb`
+- `building_completion_model_enhanced.h5`
+
+**Tech Stack:**  
+`OpenCV`, `Image Processing`, `Python`, `Computer Vision`
+
+---
+
+## 💼 Internship Project
+
+### 🎬 Movie Recommendation System (IBM)
+
+**Objective:**  
+Build a collaborative filtering-based recommendation engine.
+
+**Approach:**
+- User-Item Matrix  
+- Matrix Factorization (SVD)  
+- RMSE/MAE metrics
+
+**Tech Stack:**  
+`Pandas`, `NumPy`, `Scikit-learn`, `Python`
+
+---
+
+## 🌐 Python Full Stack Projects
+
+### 📦 MedSecureVault – Health Records System
+
+**Objective:**  
+Role-based medical record management for patients and doctors.
+
+**Features:**
+- Django + Neon PostgreSQL
+- Patient/Doctor dashboards
+- Secure document uploads
+
+**Tech Stack:**  
+`Django`, `PostgreSQL`, `Bootstrap`, `Python`
+---
+
+## 📄 License
+
+This repository is maintained by **Piyush-Sh-bit** and is intended for academic showcasing, portfolio building, and open learning.
+
+---
+
+> ✉️ For questions, feedback, or collaboration, feel free to connect via GitHub or LinkedIn!
