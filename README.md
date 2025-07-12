@@ -128,8 +128,7 @@ Role-based medical record management for patients and doctors.
 
 ## 📄 License
 
-This repository is maintained by **Piyush-Sh-bit** and is intended for academic showcasing, portfolio building, and open learning.
+This repository is maintained by **Piyush-Sh-bit** and is intended for academic showcasing and open learning.
 
 ---
 
-> ✉️ For questions, feedback, or collaboration, feel free to connect via GitHub or LinkedIn!
