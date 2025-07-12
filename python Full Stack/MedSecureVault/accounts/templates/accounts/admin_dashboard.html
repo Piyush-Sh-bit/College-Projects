@@ -1,0 +1,358 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - MedSecureVault{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2 text-primary">
+        <i class="bi bi-shield-lock me-2"></i>Admin Dashboard
+    </h1>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-2">
+        <div class="card text-white bg-primary">
+            <div class="card-body text-center">
+                <h4 class="card-title">{{ total_users }}</h4>
+                <p class="card-text">Total Users</p>
+                <i class="bi bi-people" style="font-size: 2rem;"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-2">
+        <div class="card text-white bg-success">
+            <div class="card-body text-center">
+                <h4 class="card-title">{{ approved_doctors }}</h4>
+                <p class="card-text">Active Doctors</p>
+                <i class="bi bi-person-badge" style="font-size: 2rem;"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-2">
+        <div class="card text-white bg-warning">
+            <div class="card-body text-center">
+                <h4 class="card-title">{{ pending_doctors.count }}</h4>
+                <p class="card-text">Pending Doctors</p>
+                <i class="bi bi-clock-history" style="font-size: 2rem;"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-2">
+        <div class="card text-white bg-info">
+            <div class="card-body text-center">
+                <h4 class="card-title">{{ total_patients }}</h4>
+                <p class="card-text">Total Patients</p>
+                <i class="bi bi-person-heart" style="font-size: 2rem;"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-2">
+        <div class="card text-white bg-secondary">
+            <div class="card-body text-center">
+                <h4 class="card-title">{{ total_documents }}</h4>
+                <p class="card-text">Total Documents</p>
+                <i class="bi bi-file-earmark-text" style="font-size: 2rem;"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-2">
+        <div class="card text-white bg-dark">
+            <div class="card-body text-center">
+                <h4 class="card-title">{{ total_doctors }}</h4>
+                <p class="card-text">All Doctors</p>
+                <i class="bi bi-hospital" style="font-size: 2rem;"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <!-- Pending Doctor Approvals -->
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-dark">
+                <i class="bi bi-person-badge me-2"></i>Pending Doctor Approvals
+                {% if pending_doctors.count > 0 %}
+                    <span class="badge bg-danger ms-2">{{ pending_doctors.count }}</span>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% if pending_doctors %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Doctor</th>
+                                <th>Email</th>
+                                <th>Registered</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for doctor in pending_doctors %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-person-badge text-warning me-2"></i>
+                                        <div>
+                                            <strong>Dr. {{ doctor.get_full_name }}</strong>
+                                            <br><small class="text-muted">Awaiting approval</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ doctor.email }}</td>
+                                <td>{{ doctor.date_joined|date:"M d, Y" }}</td>
+                                <td>
+                                    <form method="post" style="display:inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="approve_doctor_id" value="{{ doctor.id }}">
+                                        <button type="submit" class="btn btn-success btn-sm">
+                                            <i class="bi bi-check-circle"></i> Approve
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-success mb-0">
+                    <i class="bi bi-check-circle me-2"></i>No doctors pending approval.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Patient Management -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <i class="bi bi-people me-2"></i>Patient Management
+            </div>
+            <div class="card-body">
+                <form method="get" class="mb-3">
+                    <div class="input-group">
+                        <input type="text" name="search" class="form-control" 
+                               placeholder="Search patients by name or email" 
+                               value="{{ search_query }}">
+                        <button class="btn btn-outline-primary" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </form>
+                
+                {% if patients %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Patient</th>
+                                <th>Email</th>
+                                <th>Documents</th>
+                                <th>Assigned Doctor</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for patient in patients %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-person-circle text-primary me-2"></i>
+                                        <div>
+                                            <strong>{{ patient.get_full_name }}</strong>
+                                            <br><small class="text-muted">Joined {{ patient.date_joined|date:"M d, Y" }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ patient.email }}</td>
+                                <td>
+                                    <span class="badge bg-info">{{ patient.documents.count }} docs</span>
+                                </td>
+                                <td>
+                                    {% if patient.assigned_doctor %}
+                                        <small class="text-success">
+                                            <i class="bi bi-person-check me-1"></i>
+                                            Dr. {{ patient.assigned_doctor.get_full_name }}
+                                        </small>
+                                    {% else %}
+                                        <small class="text-muted">
+                                            <i class="bi bi-person-dash me-1"></i>
+                                            Unassigned
+                                        </small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="?view_patient_id={{ patient.id }}" class="btn btn-info btn-sm">
+                                        <i class="bi bi-folder2-open"></i> View Documents
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                {% if patients.has_other_pages %}
+                <nav aria-label="Patient pagination">
+                    <ul class="pagination justify-content-center">
+                        {% if patients.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ patients.previous_page_number }}&search={{ search_query }}">Previous</a>
+                        </li>
+                        {% endif %}
+                        <li class="page-item disabled">
+                            <span class="page-link">Page {{ patients.number }} of {{ patients.paginator.num_pages }}</span>
+                        </li>
+                        {% if patients.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ patients.next_page_number }}&search={{ search_query }}">Next</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+                {% else %}
+                <div class="alert alert-info mb-0">No patients found.</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Patient Document Details -->
+        {% if patient_detail %}
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <i class="bi bi-folder2-open me-2"></i>Documents for {{ patient_detail.get_full_name }} ({{ patient_detail.email }})
+            </div>
+            <div class="card-body">
+                {% if patient_documents %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Document</th>
+                                <th>Type</th>
+                                <th>Uploaded</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for doc in patient_documents %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        {% if doc.is_pdf %}
+                                            <i class="bi bi-file-pdf text-danger me-2"></i>
+                                        {% elif doc.is_image %}
+                                            <i class="bi bi-file-image text-primary me-2"></i>
+                                        {% else %}
+                                            <i class="bi bi-file-earmark text-secondary me-2"></i>
+                                        {% endif %}
+                                        <div>
+                                            <strong>{{ doc.title }}</strong>
+                                            {% if doc.description %}
+                                                <br><small class="text-muted">{{ doc.description|truncatechars:50 }}</small>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ doc.get_doc_type_display }}</span>
+                                </td>
+                                <td>{{ doc.uploaded_at|date:"M d, Y" }}</td>
+                                <td>
+                                    <a href="{{ doc.file.url }}" class="btn btn-outline-primary btn-sm" target="_blank">
+                                        <i class="bi bi-download"></i> Download
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-warning mb-0">No documents for this patient.</div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Right Sidebar -->
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <i class="bi bi-bar-chart me-2"></i>System Overview
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Total Users:</span>
+                        <strong class="text-primary">{{ total_users }}</strong>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Active Doctors:</span>
+                        <strong class="text-success">{{ approved_doctors }}</strong>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Pending Approvals:</span>
+                        <strong class="text-warning">{{ pending_doctors.count }}</strong>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Total Patients:</span>
+                        <strong class="text-info">{{ total_patients }}</strong>
+                    </div>
+                </div>
+                <div class="mb-0">
+                    <div class="d-flex justify-content-between">
+                        <span>Total Documents:</span>
+                        <strong class="text-secondary">{{ total_documents }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <i class="bi bi-gear me-2"></i>Admin Actions
+            </div>
+            <div class="card-body">
+                <form method="post" class="mb-4">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="new_admin_code" class="form-label">Change Admin Code</label>
+                        <input type="text" class="form-control" id="new_admin_code" name="new_admin_code" placeholder="Enter new admin code" required>
+                    </div>
+                    <button type="submit" class="btn btn-danger">Update Admin Code</button>
+                </form>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-secondary" disabled>
+                        <i class="bi bi-download me-2"></i>Export Data
+                    </button>
+                    <button class="btn btn-outline-info" disabled>
+                        <i class="bi bi-graph-up me-2"></i>View Reports
+                    </button>
+                </div>
+                <hr>
+                <small class="text-muted">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Additional admin features coming soon.
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

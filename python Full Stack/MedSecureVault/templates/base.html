@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="MedSecureVault - Secure Medical Document Management">
+    <title>{% block title %}MedSecureVault{% endblock %}</title>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    
+    <!-- Fallback for CSS -->
+    <noscript>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    </noscript>
+    
+    <style>
+        /* Critical CSS for faster loading */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .navbar-brand {
+            font-weight: bold;
+            color: #2c5aa0 !important;
+        }
+        .sidebar {
+            min-height: calc(100vh - 56px);
+            background-color: #f8f9fa;
+        }
+        .main-content {
+            min-height: calc(100vh - 56px);
+        }
+        .document-card, .patient-card {
+            transition: transform 0.2s;
+        }
+        .document-card:hover, .patient-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .role-badge {
+            font-size: 0.75rem;
+        }
+        .nav-link.active {
+            background-color: #e9ecef;
+            color: #495057 !important;
+            border-radius: 0.375rem;
+        }
+        /* Admin FAB - ALWAYS visible on ALL pages */
+        .admin-fab {
+            position: fixed !important;
+            bottom: 20px !important;
+            right: 20px !important;
+            z-index: 9999 !important;
+            width: 60px !important;
+            height: 60px !important;
+            border-radius: 50% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4) !important;
+            border: none !important;
+            background-color: #dc3545 !important;
+            color: white !important;
+            cursor: pointer !important;
+            transition: all 0.3s ease !important;
+        }
+        .admin-fab:hover {
+            transform: scale(1.1) !important;
+            box-shadow: 0 6px 16px rgba(220, 53, 69, 0.6) !important;
+            background-color: #c82333 !important;
+        }
+        .admin-fab i {
+            font-size: 1.5rem !important;
+            color: white !important;
+        }
+        /* Ensure admin button is always on top */
+        .admin-fab {
+            visibility: visible !important;
+            opacity: 1 !important;
+            will-change: transform;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% if user.is_authenticated %}{% if user.role == 'doctor' %}{% url 'accounts:doctor_dashboard' %}{% elif user.role == 'admin' %}{% url 'accounts:admin_dashboard' %}{% else %}{% url 'accounts:patient_dashboard' %}{% endif %}{% else %}{% url 'accounts:login' %}{% endif %}">
+                <i class="bi bi-shield-lock-fill me-2"></i>MedSecureVault
+            </a>
+            
+            {% if user.is_authenticated %}
+            <div class="navbar-nav ms-auto">
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle me-1"></i>
+                        {{ user.get_full_name|default:user.email }}
+                        <span class="badge bg-secondary role-badge ms-1">{{ user.get_role_display }}</span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">
+                            <i class="bi bi-person me-2"></i>Profile
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        {% if user.role == 'doctor' %}
+                        <li><a class="dropdown-item" href="{% url 'accounts:doctor_dashboard' %}">
+                            <i class="bi bi-speedometer2 me-2"></i>Doctor Dashboard
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'accounts:patient_list' %}">
+                            <i class="bi bi-people me-2"></i>Patient List
+                        </a></li>
+                        {% elif user.role == 'admin' %}
+                        <li><a class="dropdown-item" href="{% url 'accounts:admin_dashboard' %}">
+                            <i class="bi bi-speedometer2 me-2"></i>Admin Dashboard
+                        </a></li>
+                        {% else %}
+                        <li><a class="dropdown-item" href="{% url 'accounts:patient_dashboard' %}">
+                            <i class="bi bi-speedometer2 me-2"></i>Patient Dashboard
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'documents:upload' %}">
+                            <i class="bi bi-cloud-upload me-2"></i>Upload Document
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'documents:list' %}">
+                            <i class="bi bi-file-earmark-text me-2"></i>My Documents
+                        </a></li>
+                        {% endif %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}">
+                            <i class="bi bi-box-arrow-right me-2"></i>Logout
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            {% if user.is_authenticated %}
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <ul class="nav flex-column">
+                        {% if user.role == 'doctor' %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'doctor_dashboard' %}active{% endif %}" 
+                               href="{% url 'accounts:doctor_dashboard' %}">
+                                <i class="bi bi-speedometer2 me-2"></i>Doctor Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'patient_list' %}active{% endif %}" 
+                               href="{% url 'accounts:patient_list' %}">
+                                <i class="bi bi-people me-2"></i>Patient List
+                            </a>
+                        </li>
+                        {% elif user.role == 'admin' %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}" 
+                               href="{% url 'accounts:admin_dashboard' %}">
+                                <i class="bi bi-speedometer2 me-2"></i>Admin Dashboard
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'patient_dashboard' or request.resolver_match.url_name == 'dashboard' %}active{% endif %}" 
+                               href="{% url 'accounts:patient_dashboard' %}">
+                                <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'upload' %}active{% endif %}" 
+                               href="{% url 'documents:upload' %}">
+                                <i class="bi bi-cloud-upload me-2"></i>Upload Document
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'list' %}active{% endif %}" 
+                               href="{% url 'documents:list' %}">
+                                <i class="bi bi-file-earmark-text me-2"></i>My Documents
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+            {% else %}
+            <main class="col-12 main-content">
+            {% endif %}
+                
+                <!-- Messages -->
+                {% if messages %}
+                <div class="mt-3">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% block content %}
+                {% endblock %}
+            </main>
+        </div>
+    </div>
+
+    {% if request.resolver_match.url_name == 'login' or request.resolver_match.url_name == 'register' %}
+        <!-- Admin Code Floating Button - ONLY VISIBLE ON LOGIN AND REGISTRATION PAGES -->
+        <button class="admin-fab" type="button" data-bs-toggle="modal" data-bs-target="#adminCodeModal" title="Administrator Access">
+            <i class="bi bi-key"></i>
+        </button>
+
+        <!-- Admin Code Modal -->
+        <div class="modal fade" id="adminCodeModal" tabindex="-1" aria-labelledby="adminCodeModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="adminCodeModalLabel"><i class="bi bi-key me-2"></i>Administrator Access</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <form method="post" action="{% url 'accounts:login' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                  <div class="mb-3">
+                    <label for="admin_code_modal" class="form-label">Enter Admin Code</label>
+                    <input type="password" class="form-control" id="admin_code_modal" name="admin_code" placeholder="Admin Code" required>
+                  </div>
+                  <input type="hidden" name="username" value="">
+                  <input type="hidden" name="password" value="">
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <button type="submit" class="btn btn-danger">Access Admin</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+    {% endif %}
+
+    <!-- Optimized JavaScript loading -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+    {% block extra_js %}{% endblock %}
+    
+    <!-- Performance optimization script -->
+    <script>
+        // Preload next likely pages
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add intersection observer for lazy loading
+            if ('IntersectionObserver' in window) {
+                const imageObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const img = entry.target;
+                            img.src = img.dataset.src;
+                            img.classList.remove('lazy');
+                            imageObserver.unobserve(img);
+                        }
+                    });
+                });
+                
+                document.querySelectorAll('img[data-src]').forEach(img => {
+                    imageObserver.observe(img);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

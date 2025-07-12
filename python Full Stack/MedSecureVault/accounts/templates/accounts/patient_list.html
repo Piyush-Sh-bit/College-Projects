@@ -1,0 +1,315 @@
+{% extends 'base.html' %}
+
+{% block title %}Patient List - MedSecureVault{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="bi bi-people me-2"></i>Patient Management
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'accounts:doctor_dashboard' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ total_patients }}</h4>
+                        <p class="card-text">Total Patients</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-people" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ assigned_to_me }}</h4>
+                        <p class="card-text">Assigned to Me</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-person-check" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ unassigned_patients }}</h4>
+                        <p class="card-text">Unassigned</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-person-dash" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search and Filter Form -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h6 class="mb-0">
+            <i class="bi bi-search me-2"></i>Search & Filter Patients
+        </h6>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-6">
+                <input type="text" name="search" class="form-control" 
+                       placeholder="Search by name or email..." 
+                       value="{{ search_query }}">
+            </div>
+            <div class="col-md-4">
+                <select name="filter" class="form-select">
+                    <option value="all" {% if filter_type == 'all' %}selected{% endif %}>All Patients</option>
+                    <option value="assigned" {% if filter_type == 'assigned' %}selected{% endif %}>Assigned to Me</option>
+                    <option value="unassigned" {% if filter_type == 'unassigned' %}selected{% endif %}>Unassigned</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-search"></i> Search
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Patients List -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0">
+            <i class="bi bi-list me-2"></i>Patients 
+            {% if filter_type == 'assigned' %}(Assigned to Me)
+            {% elif filter_type == 'unassigned' %}(Unassigned)
+            {% else %}(All)
+            {% endif %}
+            ({{ page_obj.paginator.count }})
+        </h6>
+        {% if search_query or filter_type != 'all' %}
+            <a href="{% url 'accounts:patient_list' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-x-circle me-1"></i>Clear Filters
+            </a>
+        {% endif %}
+    </div>
+    <div class="card-body">
+        {% if patients %}
+            <div class="row">
+                {% for patient in patients %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card patient-card h-100 {% if patient.assigned_doctor == user %}border-success{% elif not patient.assigned_doctor %}border-warning{% endif %}">
+                        <div class="card-body">
+                            <div class="d-flex align-items-start mb-3">
+                                <div class="me-3">
+                                    <i class="bi bi-person-circle {% if patient.assigned_doctor == user %}text-success{% elif not patient.assigned_doctor %}text-warning{% else %}text-primary{% endif %}" style="font-size: 3rem;"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="card-title mb-1">{{ patient.get_full_name|default:"No Name" }}</h6>
+                                    <p class="card-text text-muted small mb-2">{{ patient.email }}</p>
+                                    {% if patient.assigned_doctor == user %}
+                                        <span class="badge bg-success">Assigned to Me</span>
+                                    {% elif patient.assigned_doctor %}
+                                        <span class="badge bg-secondary">Assigned to Dr. {{ patient.assigned_doctor.get_full_name }}</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">Unassigned</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="row text-center">
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Documents</small>
+                                        <strong class="text-primary">{{ patient.document_count }}</strong>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Joined</small>
+                                        <strong class="text-secondary">{{ patient.date_joined|date:"M d" }}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <a href="{% url 'accounts:patient_detail' patient.id %}" 
+                                   class="btn {% if patient.assigned_doctor == user %}btn-success{% else %}btn-primary{% endif %}">
+                                    <i class="bi bi-eye me-2"></i>View Details
+                                </a>
+                                {% if patient.assigned_doctor != user and not patient.assigned_doctor %}
+                                <button class="btn btn-outline-primary btn-sm mt-2 assign-btn" 
+                                        data-patient-id="{{ patient.id }}" 
+                                        data-action="assign">
+                                    <i class="bi bi-person-plus me-1"></i>Assign to Me
+                                </button>
+                                {% elif patient.assigned_doctor == user %}
+                                <button class="btn btn-outline-warning btn-sm mt-2 assign-btn" 
+                                        data-patient-id="{{ patient.id }}" 
+                                        data-action="unassign">
+                                    <i class="bi bi-person-dash me-1"></i>Unassign
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <nav aria-label="Patient pagination" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if filter_type != 'all' %}&filter={{ filter_type }}{% endif %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if filter_type != 'all' %}&filter={{ filter_type }}{% endif %}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if filter_type != 'all' %}&filter={{ filter_type }}{% endif %}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-people text-muted" style="font-size: 4rem;"></i>
+                <h4 class="mt-3 text-muted">No Patients Found</h4>
+                {% if search_query or filter_type != 'all' %}
+                    <p class="text-muted">No patients match your search criteria.</p>
+                    <a href="{% url 'accounts:patient_list' %}" class="btn btn-outline-primary">
+                        <i class="bi bi-x-circle me-1"></i>Clear Filters
+                    </a>
+                {% else %}
+                    <p class="text-muted">No patients have registered yet.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<style>
+.patient-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.patient-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.border-success {
+    border-left: 4px solid #28a745 !important;
+}
+.border-warning {
+    border-left: 4px solid #ffc107 !important;
+}
+
+.assign-btn {
+    transition: all 0.2s ease;
+}
+.assign-btn:hover {
+    transform: translateY(-1px);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle patient assignment via AJAX
+    document.querySelectorAll('.assign-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const patientId = this.dataset.patientId;
+            const action = this.dataset.action;
+            const btn = this;
+            
+            // Disable button during request
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Processing...';
+            
+            fetch(`/accounts/ajax/assign-patient/${patientId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: `action=${action}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = 'alert alert-success alert-dismissible fade show';
+                    alertDiv.innerHTML = `
+                        ${data.message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+                    document.querySelector('main').insertBefore(alertDiv, document.querySelector('main').firstChild);
+                    
+                    // Update button
+                    if (data.assigned) {
+                        btn.className = 'btn btn-outline-warning btn-sm mt-2 assign-btn';
+                        btn.innerHTML = '<i class="bi bi-person-dash me-1"></i>Unassign';
+                        btn.dataset.action = 'unassign';
+                    } else {
+                        btn.className = 'btn btn-outline-primary btn-sm mt-2 assign-btn';
+                        btn.innerHTML = '<i class="bi bi-person-plus me-1"></i>Assign to Me';
+                        btn.dataset.action = 'assign';
+                    }
+                } else {
+                    alert('Error: ' + data.message);
+                }
+                btn.disabled = false;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+                btn.disabled = false;
+                btn.innerHTML = action === 'assign' ? 
+                    '<i class="bi bi-person-plus me-1"></i>Assign to Me' : 
+                    '<i class="bi bi-person-dash me-1"></i>Unassign';
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

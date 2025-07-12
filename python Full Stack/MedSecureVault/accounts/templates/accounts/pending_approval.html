@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}Pending Approval - MedSecureVault{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow">
+            <div class="card-body text-center">
+                <div class="mb-4">
+                    <i class="bi bi-clock-history text-warning" style="font-size: 4rem;"></i>
+                    <h3 class="mt-3">Account Pending Approval</h3>
+                </div>
+                
+                <div class="alert alert-warning" role="alert">
+                    <h5 class="alert-heading">
+                        <i class="bi bi-exclamation-triangle me-2"></i>Doctor Account Under Review
+                    </h5>
+                    <p class="mb-0">
+                        Your doctor account is currently being reviewed by our administrators. 
+                        You will receive an email notification once your account is approved.
+                    </p>
+                </div>
+                
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h6 class="card-title">Account Details</h6>
+                        <div class="row text-start">
+                            <div class="col-sm-4"><strong>Name:</strong></div>
+                            <div class="col-sm-8">{{ user.get_full_name|default:"Not provided" }}</div>
+                        </div>
+                        <div class="row text-start">
+                            <div class="col-sm-4"><strong>Email:</strong></div>
+                            <div class="col-sm-8">{{ user.email }}</div>
+                        </div>
+                        <div class="row text-start">
+                            <div class="col-sm-4"><strong>Role:</strong></div>
+                            <div class="col-sm-8">
+                                <span class="badge bg-primary">{{ user.get_role_display }}</span>
+                            </div>
+                        </div>
+                        <div class="row text-start">
+                            <div class="col-sm-4"><strong>Status:</strong></div>
+                            <div class="col-sm-8">
+                                <span class="badge bg-warning">Pending Approval</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <p class="text-muted">
+                        <i class="bi bi-info-circle me-1"></i>
+                        This process typically takes 1-2 business days. 
+                        If you have questions, please contact our support team.
+                    </p>
+                </div>
+                
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                    <a href="{% url 'accounts:logout' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-box-arrow-right me-1"></i>Logout
+                    </a>
+                    <a href="{% url 'accounts:profile' %}" class="btn btn-primary">
+                        <i class="bi bi-person me-1"></i>View Profile
+                    </a>
+                    <button id="checkApprovalBtn" class="btn btn-success">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Check Status
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-3">
+            <small class="text-muted">
+                Need help? Contact us at 
+                <a href="mailto:support@medsecurevault.com">support@medsecurevault.com</a>
+            </small>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkBtn = document.getElementById('checkApprovalBtn');
+    
+    // Auto-check approval status every 30 seconds
+    function checkApprovalStatus() {
+        fetch('/accounts/check-approval/', {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.approved) {
+                // Show success message and redirect
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-success alert-dismissible fade show';
+                alertDiv.innerHTML = `
+                    <strong>Approved!</strong> Your account has been approved. Redirecting to dashboard...
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.querySelector('.container').insertBefore(alertDiv, document.querySelector('.row'));
+                
+                // Redirect after 2 seconds
+                setTimeout(() => {
+                    window.location.href = '/accounts/doctor-dashboard/';
+                }, 2000);
+            }
+        })
+        .catch(error => {
+            console.log('Status check failed:', error);
+        });
+    }
+    
+    // Manual check button
+    checkBtn.addEventListener('click', function() {
+        this.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Checking...';
+        this.disabled = true;
+        
+        checkApprovalStatus();
+        
+        setTimeout(() => {
+            this.innerHTML = '<i class="bi bi-arrow-clockwise me-1"></i>Check Status';
+            this.disabled = false;
+        }, 2000);
+    });
+    
+    // Auto-check every 30 seconds
+    setInterval(checkApprovalStatus, 30000);
+});
+</script>
+{% endblock %}
