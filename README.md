@@ -95,7 +95,7 @@ Monitor construction progress via image comparison with architectural plans.
 
 ## 💼 Internship Project
 
-### 🎬 Movie Recommendation System (IBM)
+### 🎬 Movie Recommendation System
 
 **Objective:**  
 Build a collaborative filtering-based recommendation engine.
