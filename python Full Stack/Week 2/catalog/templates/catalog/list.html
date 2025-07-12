@@ -1,0 +1,12 @@
+
+<h1>Product List</h1>
+<a href="{% url 'catalog_add' %}">Add New</a>
+<ul>
+    {% for obj in catalog %}
+        <li>
+            <a href="{% url 'catalog_detail' obj.pk %}">{{ obj }}</a>
+            (<a href="{% url 'catalog_edit' obj.pk %}">Edit</a>,
+             <a href="{% url 'catalog_delete' obj.pk %}">Delete</a>)
+        </li>
+    {% endfor %}
+</ul>
